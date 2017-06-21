@@ -6,6 +6,15 @@ var schema =new mongoose.Schema({
     },
     userName:{
         type:String,
+        unique: true
+    },
+    telPhone:{
+        type:String,
+        defualt:"",
+    },
+    emailAdress:{
+        type:String,
+        defualt:"",
     },
     password:{
         type:String,
