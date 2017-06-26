@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
 router.post('/register', function(req, res, next) {
     var postData = req.body;
     console.log(postData);
-    Utils.sendEmail("731364471@qq.com","注册验证码","测试打算","<h3>页面HTML</h3>")
+    Utils.sendEmail("731364471@qq.com","注册验证码","","<h3>页面HTML</h3>")
     if(postData.userName=="admin" && postData.password=="admin"){
         res.send({resultCode:"0000",resultDesc:"注册成功！",user:postData});
         log.info("用户注册成功|用户名"+postData.userName+"|密码"+postData.password+"|邮箱"+postData.email);
