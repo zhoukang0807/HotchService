@@ -12,6 +12,6 @@ module.exports = {
         port: "465",
         user: "MIGU_OP_SYS0001@qq.com",
         pass: "psyfclahlfjbddgj"
-    },
+    }
 };
 

@@ -5,6 +5,8 @@ var routes = require('./routesConfig');
 var config=require("./config/config");
 var log4js = require('log4js');
 log4js.configure("./log4js.json");
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 var db=require("./config/db");
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -15,6 +17,16 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({
+    secret: 'hotch  app', //secret的值建议使用随机字符串
+    name: 'hotchapp',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {maxAge: 60 * 1000 * 30}, // 过期时间（毫秒）
+    store: new MongoStore({   //创建新的mongodb数据库
+        url:config.mongodb
+    })
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //路由集合
