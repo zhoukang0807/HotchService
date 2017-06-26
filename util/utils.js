@@ -1,7 +1,7 @@
 var config = require('../config/config');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
-    service: config.email.host, // 主机
+    service: config.email.service, // 主机
     secureConnection: true, // 使用 SSL
     port: config.email.port, // SMTP 端口
     auth: {
@@ -18,7 +18,6 @@ exports.sendEmail = function (email, title, content, html) {
         html: html
     };
     transporter.sendMail(mailOptions, function (error, info) {
-        console.log(error);
         if (error) {
             return error;
         } else {
