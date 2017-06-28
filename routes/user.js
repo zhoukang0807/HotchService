@@ -26,7 +26,7 @@ router.post('/register', function (req, res, next) {
         }else{
             User.findOne({userName:user.userName},function (err,data1) {
                 if(!data1){
-                    User.findOne({userName:user.userName},function (err,data2) {
+                    User.findOne({email:user.email},function (err,data2) {
                         if(!data2){
                             new User(user).save(function (err, data) {
                                 if (err) {
@@ -47,7 +47,7 @@ router.post('/register', function (req, res, next) {
 
         }
     }
-    log.info("用户注册成功|用户名" + postData.userName + "|密码" + postData.password + "|邮箱" + postData.email);
+    log.info("用户注册|用户名" + postData.userName + "|密码" + postData.password + "|邮箱" + postData.email);
 
 });
 //验证码发送服务
@@ -83,9 +83,9 @@ router.post('/login', function (req, res, next) {
             }
 
         }else{
-            User.findOne({userName:postData.userNameOrEmail},function (err,data) {
+            User.findOne({email:postData.userName},function (err,data) {
                 if(data) {
-                    if(postData.password==user.password){
+                    if(data.password==postData.password){
                         res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
                         log.info("用户" + postData.userName+"登陆成功！");
                     }else{

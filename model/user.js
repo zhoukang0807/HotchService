@@ -12,7 +12,7 @@ var schema =new mongoose.Schema({
         type:String,
         defualt:"",
     },
-    emailAdress:{
+    email:{
         type:String,
         defualt:"",
     },
