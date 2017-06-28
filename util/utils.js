@@ -17,21 +17,23 @@ exports.IsEmail = function (email) {
     }
     return true;
 }
-exports.sendEmail = function (email, title, content, html) {
-    var mailOptions = {
-        from: config.email.user, // 发件地址
-        to: email, // 收件列表
-        subject: title, // 标题
-        text: content,
-        html: html
-    };
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            return error;
-        } else {
-            return "Success";
-        }
-    });
+exports.sendEmail = function(email, title, content, html){
+    return new Promise(function (resolve, reject) {
+            var mailOptions = {
+                from: config.email.user, // 发件地址
+                to: email, // 收件列表
+                subject: title, // 标题
+                text: content,
+                html: html
+            };
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve("Success");
+                }
+            })
+    })
 }
 exports.randomAlphanumeric = function (charsLength, chars) {
     var length = charsLength;
