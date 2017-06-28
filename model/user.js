@@ -24,4 +24,4 @@ var schema =new mongoose.Schema({
         default:Date.now
     }}
 )
-module.exports =mongoose.model('Attendance',schema);
+module.exports =mongoose.model('User',schema);

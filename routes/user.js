@@ -1,49 +1,102 @@
 var express = require('express');
 var router = express.Router();
 var Utils = require('../util/utils');
+var constant = require('../util/constant');
+var User = require('../model/user');
 var log4js = require('log4js');
 log4js.configure("./log4js.json");
 var log = log4js.getLogger('user');
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/', function (req, res, next) {
+    res.send('respond with a resource');
 });
-router.post('/register', function(req, res, next) {
+router.post('/register', function (req, res, next) {
     var postData = req.body;
-    console.log(postData);
-    if(postData.userName=="admin" && postData.password=="admin"){
-        res.send({resultCode:"0000",resultDesc:"注册成功！",user:postData});
-        log.info("用户注册成功|用户名"+postData.userName+"|密码"+postData.password+"|邮箱"+postData.email);
+    log.info("注册"+JSON.stringify(postData));
+    var user = {
+        userName: postData.userName,
+        password: postData.password,
+        email: postData.email
+    };
+    if(user.userName==""||user.password==""||user.email==""||postData.verifyCode==""){
+        res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "参数缺失"});
     }else{
-        res.send({resultCode:"0001",resultDesc:"注册失败！重复"});
+        if(postData.verifyCode!=req.session.verifyCode){
+            res.send({resultCode: constant.resultCode.Error_Code_Verify, resultDesc: "验证码错误，或已失效"});
+        }else{
+            User.findOne({userName:user.userName},function (err,data1) {
+                if(!data1){
+                    User.findOne({userName:user.userName},function (err,data2) {
+                        if(!data2){
+                            new User(user).save(function (err, data) {
+                                if (err) {
+                                    res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "注册失败！"});
+                                } else {
+                                    res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "注册成功！", user: user});
+                                }
+                            })
+                        }else{
+                            res.send({resultCode: constant.resultCode.Error_Code_IsExit, resultDesc: "邮箱已注册，不能重复使用！"});
+                        }
+                    })
+
+                }else{
+                    res.send({resultCode: constant.resultCode.Error_Code_IsExit, resultDesc: "用户名已存在！"});
+                }
+            })
+
+        }
     }
+    log.info("用户注册成功|用户名" + postData.userName + "|密码" + postData.password + "|邮箱" + postData.email);
+
 });
-router.post('/send/indentify', function(req, res, next) {
+//验证码发送服务
+router.post('/send/indentify', function (req, res, next) {
     var postData = req.body;
-    log.info(postData);
-    if(Utils.IsEmail(postData.email)){
+    log.info("发送邮件"+JSON.stringify(postData));
+    if (Utils.IsEmail(postData.email)) {
         var verifyCode = Utils.randomAlphanumeric(4);
         //记录验证码到session中
         req.session.verifyCode = verifyCode
-        Utils.sendEmail(postData.email,"大杂烩注册验证码","",Utils.getEmailHtml('您好！您的验证码为：'+verifyCode+',请勿告诉他人')).then(function (result) {
+        Utils.sendEmail(postData.email, "大杂烩注册验证码", "", Utils.getEmailHtml('您好！您的验证码为：' + verifyCode + ',请勿告诉他人')).then(function (result) {
             log.info(result);
-            res.send({resultCode:"0000",resultDesc:"发送验证码成功！",code:verifyCode});
+            res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "发送验证码成功！", verifyCode: verifyCode});
         }).catch(function (err) {
             log.error(err);
-            res.send({resultCode:"0102",resultDesc:"发送验证码失败！",code:verifyCode});
+            res.send({resultCode:constant.resultCode.Error_Code_Send, resultDesc: "发送验证码失败！", verifyCode: verifyCode});
         });
-    }else{
-        res.send({resultCode:"0101",resultDesc:"邮箱格式不正确！"});
+    } else {
+        res.send({resultCode:constant.resultCode.Error_Code_Format, resultDesc: "邮箱格式不正确！"});
     }
 
 });
-router.post('/login', function(req, res, next) {
+router.post('/login', function (req, res, next) {
     var postData = req.body;
-    console.log(postData);
-    if(postData.userName=="admin" && postData.password=="admin"){
-        res.send({resultCode:"0000",resultDesc:"登陆成功！",user:postData});
-    }else{
-        res.send({resultCode:"0001",resultDesc:"账户名或密码不存在"});
-    }
+    User.findOne({userName:postData.userName},function (err,user) {
+        if(user){
+            if(postData.password==user.password){
+                res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
+                log.info("用户" + postData.userName+"登陆成功！");
+            }else{
+                res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});
+                log.info("用户" + postData.userName+"登陆失败！");
+            }
+
+        }else{
+            User.findOne({userName:postData.userNameOrEmail},function (err,data) {
+                if(data) {
+                    if(postData.password==user.password){
+                        res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
+                        log.info("用户" + postData.userName+"登陆成功！");
+                    }else{
+                        res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});
+                        log.info("用户" + postData.userName+"登陆失败！");
+                    }
+                }else{
+                    res.send({resultCode: constant.resultCode.Error_Code_NoExit, resultDesc: "账号不存在"});
+                }
+            })
+        }
+    })
 });
 module.exports = router;
