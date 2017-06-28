@@ -19,11 +19,18 @@ router.post('/register', function(req, res, next) {
     }
 });
 router.post('/send/indentify', function(req, res, next) {
-    var verifyCode = Utils.randomAlphanumeric(4);
     var postData = req.body;
     console.log(postData);
-    Utils.sendEmail(postData.email,"注册验证码","",Utils.getEmailHtml('您好！您的验证码为：'+verifyCode+',请勿告诉他人'));
-    res.send({resultCode:"0000",resultDesc:"发送验证码成功！",code:"FTR!@#"});
+    if(Utils.IsEmail(postData.email)){
+        var verifyCode = Utils.randomAlphanumeric(4);
+        //记录验证码到session中
+        req.session.verifyCode = verifyCode
+        Utils.sendEmail(postData.email,"大杂烩注册验证码","",Utils.getEmailHtml('您好！您的验证码为：'+verifyCode+',请勿告诉他人'));
+        res.send({resultCode:"0000",resultDesc:"发送验证码成功！",code:verifyCode});
+    }else{
+        res.send({resultCode:"0101",resultDesc:"邮箱格式不正确！"});
+    }
+
 });
 router.post('/login', function(req, res, next) {
     var postData = req.body;

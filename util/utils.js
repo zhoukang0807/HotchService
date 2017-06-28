@@ -9,6 +9,14 @@ var transporter = nodemailer.createTransport({
         pass: config.email.pass
     }
 });
+exports.IsEmail = function (email) {
+    //对电子邮件的验证
+    var myreg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+    if (!myreg.test(email)) {
+        return false;
+    }
+    return true;
+}
 exports.sendEmail = function (email, title, content, html) {
     var mailOptions = {
         from: config.email.user, // 发件地址
