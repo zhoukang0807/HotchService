@@ -2,9 +2,6 @@ var express = require('express');
 var router = express.Router();
 var Utils = require('../util/utils');
 
-var request = require('request');
-var cheerio = require('cheerio');
-
 var rp = require('request-promise');
 /* GET users listing. */
 
