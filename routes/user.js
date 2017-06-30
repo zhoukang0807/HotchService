@@ -12,35 +12,39 @@ router.get('/', function (req, res, next) {
 });
 router.post('/register', function (req, res, next) {
     var postData = req.body;
-    log.info("注册"+JSON.stringify(postData));
+    log.info("注册" + JSON.stringify(postData));
     var user = {
         userName: postData.userName,
         password: postData.password,
         email: postData.email
     };
-    if(user.userName==""||user.password==""||user.email==""||postData.verifyCode==""){
+    if (user.userName == "" || user.password == "" || user.email == "" || postData.verifyCode == "") {
         res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "参数缺失"});
-    }else{
-        if(postData.verifyCode!=req.session.verifyCode){
+    } else {
+        if (postData.verifyCode != req.session.verifyCode) {
             res.send({resultCode: constant.resultCode.Error_Code_Verify, resultDesc: "验证码错误，或已失效"});
-        }else{
-            User.findOne({userName:user.userName},function (err,data1) {
-                if(!data1){
-                    User.findOne({email:user.email},function (err,data2) {
-                        if(!data2){
+        } else {
+            User.findOne({userName: user.userName}, function (err, data1) {
+                if (!data1) {
+                    User.findOne({email: user.email}, function (err, data2) {
+                        if (!data2) {
                             new User(user).save(function (err, data) {
                                 if (err) {
                                     res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "注册失败！"});
                                 } else {
-                                    res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "注册成功！", user: user});
+                                    res.send({
+                                        resultCode: constant.resultCode.Success_Code,
+                                        resultDesc: "注册成功！",
+                                        user: user
+                                    });
                                 }
                             })
-                        }else{
+                        } else {
                             res.send({resultCode: constant.resultCode.Error_Code_IsExit, resultDesc: "邮箱已注册，不能重复使用！"});
                         }
                     })
 
-                }else{
+                } else {
                     res.send({resultCode: constant.resultCode.Error_Code_IsExit, resultDesc: "用户名已存在！"});
                 }
             })
@@ -53,7 +57,7 @@ router.post('/register', function (req, res, next) {
 //验证码发送服务
 router.post('/send/indentify', function (req, res, next) {
     var postData = req.body;
-    log.info("发送邮件"+JSON.stringify(postData));
+    log.info("发送邮件" + JSON.stringify(postData));
     if (Utils.IsEmail(postData.email)) {
         var verifyCode = Utils.randomAlphanumeric(4);
         //记录验证码到session中
@@ -63,40 +67,61 @@ router.post('/send/indentify', function (req, res, next) {
             res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "发送验证码成功！", verifyCode: verifyCode});
         }).catch(function (err) {
             log.error(err);
-            res.send({resultCode:constant.resultCode.Error_Code_Send, resultDesc: "发送验证码失败！", verifyCode: verifyCode});
+            res.send({resultCode: constant.resultCode.Error_Code_Send, resultDesc: "发送验证码失败！", verifyCode: verifyCode});
         });
     } else {
-        res.send({resultCode:constant.resultCode.Error_Code_Format, resultDesc: "邮箱格式不正确！"});
+        res.send({resultCode: constant.resultCode.Error_Code_Format, resultDesc: "邮箱格式不正确！"});
     }
 
 });
 router.post('/login', function (req, res, next) {
     var postData = req.body;
-    User.findOne({userName:postData.userName},function (err,user) {
-        if(user){
-            if(postData.password==user.password){
+    User.findOne({userName: postData.userName}, function (err, user) {
+        if (user) {
+            if (postData.password == user.password) {
                 res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
-                log.info("用户" + postData.userName+"登陆成功！");
-            }else{
+                log.info("用户" + postData.userName + "登陆成功！");
+            } else {
                 res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});
-                log.info("用户" + postData.userName+"登陆失败！");
+                log.info("用户" + postData.userName + "登陆失败！");
             }
 
-        }else{
-            User.findOne({email:postData.userName},function (err,data) {
-                if(data) {
-                    if(data.password==postData.password){
+        } else {
+            User.findOne({email: postData.userName}, function (err, data) {
+                if (data) {
+                    if (data.password == postData.password) {
                         res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
-                        log.info("用户" + postData.userName+"登陆成功！");
-                    }else{
+                        log.info("用户" + postData.userName + "登陆成功！");
+                    } else {
                         res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});
-                        log.info("用户" + postData.userName+"登陆失败！");
+                        log.info("用户" + postData.userName + "登陆失败！");
                     }
-                }else{
+                } else {
                     res.send({resultCode: constant.resultCode.Error_Code_NoExit, resultDesc: "账号不存在"});
                 }
             })
         }
     })
+});
+router.post('/forget/password', function (req, res, next) {
+    var postData = req.body;
+    console.log(postData)
+    if (postData.verifyCode != req.session.verifyCode) {
+        res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "验证码错误！"});
+    } else {
+        User.findOne({email: postData.email}, function (err, data) {
+            if (data) {
+                User.update({email: postData.email}, {$set: {password: postData.password}}, function (err, row) {
+                    if (err) {
+                        res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "修改失败，服务器异常！"});
+                    } else {
+                        res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "密码修改成功！"});
+                    }
+                })
+            } else {
+                res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "邮箱用户不存在，请先注册！"});
+            }
+        });
+    }
 });
 module.exports = router;
