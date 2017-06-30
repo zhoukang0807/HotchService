@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var Utils = require('../util/utils');
-
 var rp = require('request-promise');
 /* GET users listing. */
 
