@@ -16,7 +16,8 @@ router.post('/register', function (req, res, next) {
     var user = {
         userName: postData.userName,
         password: postData.password,
-        email: postData.email
+        email: postData.email,
+        userId:Number(Date.now().toString()+Utils.GetRandomNum(0,1000).toString())
     };
     if (user.userName == "" || user.password == "" || user.email == "" || postData.verifyCode == "") {
         res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "参数缺失"});
@@ -30,6 +31,7 @@ router.post('/register', function (req, res, next) {
                         if (!data2) {
                             new User(user).save(function (err, data) {
                                 if (err) {
+                                    log.info(err);
                                     res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "注册失败！"});
                                 } else {
                                     res.send({
@@ -79,7 +81,7 @@ router.post('/login', function (req, res, next) {
     User.findOne({userName: postData.userName}, function (err, user) {
         if (user) {
             if (postData.password == user.password) {
-                res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
+                res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", loginInfo: user});
                 log.info("用户" + postData.userName + "登陆成功！");
             } else {
                 res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});
@@ -90,7 +92,7 @@ router.post('/login', function (req, res, next) {
             User.findOne({email: postData.userName}, function (err, data) {
                 if (data) {
                     if (data.password == postData.password) {
-                        res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", user: postData});
+                        res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "登陆成功！", loginInfo: data});
                         log.info("用户" + postData.userName + "登陆成功！");
                     } else {
                         res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});

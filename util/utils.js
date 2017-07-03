@@ -35,6 +35,13 @@ exports.sendEmail = function(email, title, content, html){
             })
     })
 }
+
+exports.GetRandomNum=function(Min,Max)
+{
+    var Range = Max - Min;
+    var Rand = Math.random();
+    return(Min + Math.round(Rand * Range));
+}
 exports.randomAlphanumeric = function (charsLength, chars) {
     var length = charsLength;
     var newchars = ""
