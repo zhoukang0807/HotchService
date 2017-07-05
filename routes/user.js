@@ -78,6 +78,7 @@ router.post('/send/indentify', function (req, res, next) {
 });
 router.post('/login', function (req, res, next) {
     var postData = req.body;
+    log.info(postData);
     User.findOne({userName: postData.userName}, function (err, user) {
         if (user) {
             if (postData.password == user.password) {
