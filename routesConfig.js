@@ -5,6 +5,7 @@ module.exports = function (app) {
     app.use('/', require('./routes/index'));
     app.use('/user', require('./routes/user'));
     app.use('/articles', require('./routes/articles'));
+    app.use('/room', require('./routes/room'));
     app.use(function (req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;
