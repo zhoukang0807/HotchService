@@ -36,4 +36,9 @@ var log = log4js.getLogger('app');
 log.info("app启动了");
 app.listen(config.port);
 log.info("网址为  http://127.0.0.1:8089");
+
+
+
+
+
 module.exports = app;

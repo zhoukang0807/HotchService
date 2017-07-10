@@ -3,6 +3,7 @@ var router = express.Router();
 var Utils = require('../util/utils');
 var constant = require('../util/constant');
 var User = require('../model/user');
+var Chat = require('../model/chat');
 var log4js = require('log4js');
 log4js.configure("./log4js.json");
 var log = log4js.getLogger('user');
@@ -17,9 +18,10 @@ router.post('/register', function (req, res, next) {
         userName: postData.userName,
         password: postData.password,
         email: postData.email,
-        userId:Number(Date.now().toString()+Utils.GetRandomNum(0,1000).toString())
+        nick:postData.nick ,
+        friends:[]
     };
-    if (user.userName == "" || user.password == "" || user.email == "" || postData.verifyCode == "") {
+    if (user.userName == "" || user.password == "" || user.email == "" || postData.verifyCode == ""||postData.nick =="") {
         res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "参数缺失"});
     } else {
         if (postData.verifyCode != req.session.verifyCode) {
@@ -54,7 +56,6 @@ router.post('/register', function (req, res, next) {
         }
     }
     log.info("用户注册|用户名" + postData.userName + "|密码" + postData.password + "|邮箱" + postData.email);
-
 });
 //验证码发送服务
 router.post('/send/indentify', function (req, res, next) {
@@ -76,6 +77,7 @@ router.post('/send/indentify', function (req, res, next) {
     }
 
 });
+
 router.post('/login', function (req, res, next) {
     var postData = req.body;
     User.findOne({userName: postData.userName}, function (err, user) {
@@ -87,7 +89,6 @@ router.post('/login', function (req, res, next) {
                 res.send({resultCode: constant.resultCode.Error_Code_Param, resultDesc: "账号或密码错误"});
                 log.info("用户" + postData.userName + "登陆失败！");
             }
-
         } else {
             User.findOne({email: postData.userName}, function (err, data) {
                 if (data) {
@@ -105,6 +106,7 @@ router.post('/login', function (req, res, next) {
         }
     })
 });
+
 router.post('/forget/password', function (req, res, next) {
     var postData = req.body;
     console.log(postData)
@@ -126,4 +128,107 @@ router.post('/forget/password', function (req, res, next) {
         });
     }
 });
+
+router.post('/selectFriend', function (req, res, next) {
+    var userName = req.body.userName
+    User.findOne({userName: userName}, function (err, data) {
+        var friends= data.friends;
+        selectChats(friends,userName).then(function(chats){
+            res.send({
+                resultCode:"0000",
+                resultDesc:"Success",
+                data:chats
+            })
+        })
+    });
+});
+
+function selectChats(friends,userName) {
+    return new Promise(function (resolve, reject){
+        var chats=[];
+        var i = 0;
+        function selectChat() {
+            var friend = JSON.parse(friends[i]);
+            var friendUserName = friend.userName;
+            var lastMsg;
+            var time;
+            var sort ={"createTime":"desc"}
+            var query = Chat.count({});
+            query.where('userName',friendUserName);
+            query.where('targetUserName',userName);
+            query.exec().then(function (count) {
+                if(count!=0){
+                    query.find().sort(sort).then(function (data) {
+                        lastMsg = data[0].message;
+                        time = data[0].createTime;
+                        var result = {
+                            friendUserName:friendUserName,
+                            count:count,
+                            time:time,
+                            lastMsg:lastMsg
+                        }
+                        chats.push(result);
+                        i++;
+                        if(i==friends.length){
+                            log.info(chats);
+                            resolve(chats);
+                        }else{
+                            selectChat()
+                        }
+                    })
+                }else{
+                    if(i==friends.length){
+                        log.info(chats);
+                        resolve(chats);
+                    }else{
+                        selectChat()
+                    }
+                }
+            })
+        }
+        selectChat();
+    })
+}
+
+
+router.post('/addFriend', function (req, res, next) {
+    var userName = req.body.userName;
+    var friendUserId = req.body.friendUserId;
+    var friendUserName = req.body.friendUserName;
+    add(userName,friendUserId, friendUserName).then(function(result){
+        res.send(result)
+    }).catch(function (err) {
+        res.send(err)
+    });
+});
+
+function add(userName,friendUserId, friendUserName) {
+    return new Promise(function (resolve, reject){
+        User.findOne({userName: userName}, function (err, user) {
+            if (user) {
+                let friend = {
+                    userId: friendUserId,
+                    userName: friendUserName
+                }
+                var friends = [];
+                friends.push(JSON.stringify(friend));
+                for (var a = 0 ;a<user.friends.length;a++){
+                    if(friends.indexOf(user.friends[a])==-1){
+                        friends.push(user.friends[a])
+                    }
+                }
+                User.update({userName: userName}, {$set: {friends: friends}}, function (err, row) {
+                    if(err){
+                        var result = JSON.stringify({resultCode:"0001",resultDesc:err})
+                        reject(result)
+                    }else{
+                        var result = JSON.stringify({resultCode:"0000",resultDesc:"Success"})
+                        resolve(result)
+                    }
+                })
+            }
+        })
+    })
+}
+
 module.exports = router;
