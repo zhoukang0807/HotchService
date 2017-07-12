@@ -8,11 +8,20 @@ var schema = new mongoose.Schema({
             type: String,
             unique: true
         },
+        nickName: {
+            type: String,
+            defualt: ""
+        },
         telPhone: {
             type: String,
             defualt: "",
         },
         email: {
+            type: String,
+            defualt: "",
+        },
+       //个性签名
+        sign:{
             type: String,
             defualt: "",
         },
