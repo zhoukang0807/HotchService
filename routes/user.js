@@ -132,64 +132,18 @@ router.post('/forget/password', function (req, res, next) {
 router.post('/selectFriend', function (req, res, next) {
     var userName = req.body.userName
     User.findOne({userName: userName}, function (err, data) {
+        console.log(data);
         var friends= data.friends;
-        selectChats(friends,userName).then(function(chats){
-            res.send({
-                resultCode:"0000",
-                resultDesc:"Success",
-                data:chats
-            })
-        })
+
+                res.send({
+                    resultCode:"0000",
+                    resultDesc:"Success",
+                    data:friends
+                })
+
+
     });
 });
-
-function selectChats(friends,userName) {
-    return new Promise(function (resolve, reject){
-        var chats=[];
-        var i = 0;
-        function selectChat() {
-            var friend = JSON.parse(friends[i]);
-            var friendUserName = friend.userName;
-            var lastMsg;
-            var time;
-            var sort ={"createTime":"desc"}
-            var query = Chat.count({});
-            query.where('userName',friendUserName);
-            query.where('targetUserName',userName);
-            query.exec().then(function (count) {
-                if(count!=0){
-                    query.find().sort(sort).then(function (data) {
-                        lastMsg = data[0].message;
-                        time = data[0].createTime;
-                        var result = {
-                            friendUserName:friendUserName,
-                            count:count,
-                            time:time,
-                            lastMsg:lastMsg
-                        }
-                        chats.push(result);
-                        i++;
-                        if(i==friends.length){
-                            log.info(chats);
-                            resolve(chats);
-                        }else{
-                            selectChat()
-                        }
-                    })
-                }else{
-                    if(i==friends.length){
-                        log.info(chats);
-                        resolve(chats);
-                    }else{
-                        selectChat()
-                    }
-                }
-            })
-        }
-        selectChat();
-    })
-}
-
 
 router.post('/addFriend', function (req, res, next) {
     var userName = req.body.userName;
@@ -230,5 +184,27 @@ function add(userName,friendUserId, friendUserName) {
         })
     })
 }
+
+router.post('/queryFriend', function (req, res, next) {
+    var friendName = req.body.friendName;
+    var userName = req.body.userName;
+    var query = User.count({});
+    var sort ={"userName":"asc"}
+    query.where('userName',new RegExp('\\s*' + friendName + '\\s*'));
+    query.find().sort(sort).then(function (data) {
+        var friendNames = [];
+        for(var i =0;i<data.length;i++){
+            if(userName!=data[i].userName){
+                friendNames.push(data[i].userName)
+            }
+        }
+        res.jsonp({
+            resultCode:"0000",
+            resultDesc:"Success",
+            data:friendNames
+        })
+        log.info(friendNames);
+    })
+});
 
 module.exports = router;
