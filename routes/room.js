@@ -8,8 +8,9 @@ log4js.configure("./log4js.json");
 var log = log4js.getLogger('room');
 router.get('/', function (req, res, next) {
     new Room({
-        roomId:14990831822,
-        roomName:"群聊天",
+        roomId:14990831826,
+        roomName:"userRoom",
+        roomTitle:"群聊天啊",
         users:[{userId:1499084091067978,remark:"江超",userName:"jiang",type:1},{userId:1499083182572912,remark:"周康",userName:"kangz",type:2}]
     }).save(function (err,row) {
         res.jsonp(err)

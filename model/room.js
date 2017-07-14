@@ -9,6 +9,10 @@ var schema = new mongoose.Schema({
             type: String,
             unique: true
         },
+        roomTitle: {
+            type: String,
+            defualt: ""
+        },
         users: {
             type: Array,
             defualt: []

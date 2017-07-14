@@ -7,6 +7,7 @@ module.exports = function (app) {
     app.use('/articles', require('./routes/articles'));
     app.use('/room', require('./routes/room'));
     app.use('/contact', require('./routes/contact'));
+    app.use('/find', require('./routes/find'));
     app.use(function (req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;
