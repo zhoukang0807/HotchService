@@ -1,6 +1,6 @@
 module.exports = {
     port: 8089,
-    mongodb: 'mongodb://127.0.0.1:27017/hotchPotch',
+    mongodb: 'mongodb://kangz.win:27017/hotchPotch',
     email: {
         //支持邮箱
         //"126" "163" "1und1" "AOL" "DebugMail" "DynectEmail" "FastMail" "GandiMail" "Gmail" "Godaddy"

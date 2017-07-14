@@ -10,7 +10,7 @@ router.get('/', function (req, res, next) {
     new Room({
         roomId:14990831822,
         roomName:"群聊天",
-        users:[{userId:1499084091067978,name:"江超",userName:"jiang",type:1},{userId:1499083182572912,name:"周康",userName:"kangz",type:2}]
+        users:[{userId:1499084091067978,remark:"江超",userName:"jiang",type:1},{userId:1499083182572912,remark:"周康",userName:"kangz",type:2}]
     }).save(function (err,row) {
         res.jsonp(err)
     })

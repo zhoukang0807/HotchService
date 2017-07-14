@@ -38,7 +38,6 @@ router.get('/select', function (req, res, next) {
     const userId = req.query.userId;
     User.findOne({userId:userId},function (err,row) {
         if(err){
-            log.err(err);
             res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc:"数据库异常！"});
         }
         else{
