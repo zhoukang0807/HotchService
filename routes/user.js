@@ -15,6 +15,7 @@ router.post('/register', function (req, res, next) {
     log.info("注册" + JSON.stringify(postData));
     var user = {
         userName: postData.userName,
+        nickName: postData.nickName,
         password: postData.password,
         email: postData.email,
         userId:Number(Date.now().toString()+Utils.GetRandomNum(0,1000).toString())
