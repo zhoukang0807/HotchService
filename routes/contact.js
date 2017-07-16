@@ -21,7 +21,8 @@ router.get('/add', function (req, res, next) {
                         userName:data.userName,
                         sign:data.sign,
                         remark:"",
-                        nickName:data.nickName
+                        nickName:data.nickName,
+                        avatar:data.avatar
                     };
                     friends.push(param);
                     User.update({userName:receiver},{$set: {friends: friends}},function (err,result1) {
@@ -35,7 +36,8 @@ router.get('/add', function (req, res, next) {
                                 userName:row.userName,
                                 sign:row.sign,
                                 remark:"",
-                                nickName:row.nickName
+                                nickName:row.nickName,
+                                avatar:row.avatar
                             };
                             friends2.push(param2);
                             User.update({userName:form},{$set: {friends: friends2}},function (err,result2) {

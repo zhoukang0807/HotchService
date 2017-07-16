@@ -21,6 +21,7 @@ router.get('/', function (req, res, next) {
                     userName:row.userName,
                     nickName:row.nickName,
                     sign:row.sign,
+                    avatar:row.avatar
                 };
                 res.send({resultCode: constant.resultCode.Success_Code, resultDesc:"查询成功！",room:false, data:userInfo});
             }else{

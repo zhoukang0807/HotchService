@@ -8,6 +8,30 @@ module.exports = function (app) {
     app.use('/room', require('./routes/room'));
     app.use('/contact', require('./routes/contact'));
     app.use('/find', require('./routes/find'));
+   //静态文件路径设置
+    app.get('/public/avatar/:name', function (req, res, next) {
+
+        var options = {
+            root: __dirname + '/public/avatar/',
+            dotfiles: 'deny',
+            headers: {
+                'x-timestamp': Date.now(),
+                'x-sent': true
+            }
+        };
+
+        var fileName = req.params.name;
+        res.sendFile(fileName, options, function (err) {
+            if (err) {
+                console.log(err);
+                res.status(err.status).end();
+            }
+            else {
+                console.log('Sent:', fileName);
+            }
+        });
+
+    })
     app.use(function (req, res, next) {
         var err = new Error('Not Found');
         err.status = 404;

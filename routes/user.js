@@ -6,6 +6,8 @@ var User = require('../model/user');
 var log4js = require('log4js');
 log4js.configure("./log4js.json");
 var log = log4js.getLogger('user');
+var fs = require('fs');
+var multiparty = require('multiparty');
 /* GET users listing. */
 router.get('/', function (req, res, next) {
     res.send('respond with a resource');
@@ -129,6 +131,41 @@ router.post('/forget/password', function (req, res, next) {
     }
 });
 
+router.post('/update/avatar', function (req, res, next) {
+    let postData = req;
+    let form = new multiparty.Form({uploadDir: './public/avatar/'});
+    //上传完成后处理
+    form.parse(req, function(err, fields, files) {
+        console.log(fields);
+       if(files){
+           console.log(files);
+           let inputFile = files.images[0];
+           let uploadedPath = inputFile.path;
+           let dstPath = './public/avatar/' + inputFile.originalFilename+".jpg";
+           let imgUrl =  'http://192.168.1.2:8089/public/avatar/'+inputFile.originalFilename+".jpg";
+
+           fs.rename(uploadedPath, dstPath, function(err) {
+               if(err){
+                   log.error(err);
+                   res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "修改失败，服务器异常！"});
+
+               } else {
+                   console.log('rename ok');
+                   console.log(dstPath)
+                   User.update({userName: inputFile.originalFilename}, {$set: {avatar:imgUrl}}, function (err, row) {
+                       if (err) {
+                           res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "修改失败，服务器异常！"});
+                       } else {
+                           res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "头像修改成功！",avatar:imgUrl});
+                       }
+                   })
+               }
+           });
+       }else{
+           res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "修改失败，服务器异常！"});
+       }
+    })
+});
 
 
 module.exports = router;

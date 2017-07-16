@@ -25,6 +25,10 @@ var schema = new mongoose.Schema({
             type: String,
             defualt: "",
         },
+        avatar:{
+            type: String,
+            defualt: "https://facebook.github.io/react/img/logo_og.png",
+        },
         password: {
             type: String,
         },

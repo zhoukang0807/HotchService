@@ -27,8 +27,8 @@ app.use(session({
         url:config.mongodb
     })
 }));
-app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(express.static(path.join(__dirname, 'public')));
 //路由集合
 routes(app);
 //配置日志
