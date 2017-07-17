@@ -133,6 +133,7 @@ router.post('/forget/password', function (req, res, next) {
 
 router.post('/update/avatar', function (req, res, next) {
     let postData = req;
+    let host =postData.headers.host;
     let form = new multiparty.Form({uploadDir: './public/avatar/'});
     //上传完成后处理
     form.parse(req, function(err, fields, files) {
@@ -141,8 +142,8 @@ router.post('/update/avatar', function (req, res, next) {
            console.log(files);
            let inputFile = files.images[0];
            let uploadedPath = inputFile.path;
-           let dstPath = './public/avatar/' + inputFile.originalFilename+".jpg";
-           let imgUrl =  'http://192.168.1.2:8089/public/avatar/'+inputFile.originalFilename+".jpg";
+           let dstPath = './public/avatar/' + inputFile.originalFilename+inputFile.size+".jpg";
+           let imgUrl =  'http://'+host+'/public/avatar/'+inputFile.originalFilename+inputFile.size+".jpg";
 
            fs.rename(uploadedPath, dstPath, function(err) {
                if(err){
