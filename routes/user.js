@@ -21,7 +21,7 @@ router.post('/register', function (req, res, next) {
         nickName: postData.nickName,
         password: postData.password,
         email: postData.email,
-        avatar:'http://'+host+'/public/avatar/ic_launcher.png',
+        avatar:'http://'+host+'/public/img/ic_launcher.png',
         userId:Number(Date.now().toString()+Utils.GetRandomNum(0,1000).toString())
     };
     if (user.userName == "" || user.password == "" || user.email == "" || postData.verifyCode == "") {

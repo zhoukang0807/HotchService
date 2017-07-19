@@ -71,7 +71,7 @@ router.get('/select', function (req, res, next) {
         }
         else{
             if(row){
-                res.send({resultCode: constant.resultCode.Success_Code, resultDesc:"查询成功！", friends:row.friends});
+                res.send({resultCode: constant.resultCode.Success_Code, resultDesc:"查询成功！", friends:row.friends,rooms:row.rooms});
             }else{
                 res.send({resultCode: constant.resultCode.Error_Code_NoExit, resultDesc:"用户信息不存在！"});
             }

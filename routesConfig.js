@@ -9,10 +9,10 @@ module.exports = function (app) {
     app.use('/contact', require('./routes/contact'));
     app.use('/find', require('./routes/find'));
    //静态文件路径设置
-    app.get('/public/avatar/:name', function (req, res, next) {
+    app.get('/public/:folder/:name', function (req, res, next) {
 
         var options = {
-            root: __dirname + '/public/avatar/',
+            root: __dirname + '/public/'+req.params.folder+'/',
             dotfiles: 'deny',
             headers: {
                 'x-timestamp': Date.now(),

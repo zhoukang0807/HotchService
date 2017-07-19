@@ -10,35 +10,35 @@ var schema = new mongoose.Schema({
         },
         nickName: {
             type: String,
-            defualt: ""
+            default: ""
         },
         telPhone: {
             type: String,
-            defualt: "",
+            default: "",
         },
         email: {
             type: String,
-            defualt: "",
+            default: "",
         },
        //个性签名
         sign:{
             type: String,
-            defualt: "",
+            default: "",
         },
         avatar:{
             type: String,
-            defualt: "https://facebook.github.io/react/img/logo_og.png",
+            default: "https://facebook.github.io/react/img/logo_og.png",
         },
         password: {
             type: String,
         },
         friends: {
             type: Array,
-            defualt: []
+            default: []
         },
         rooms: {
             type: Array,
-            defualt: []
+            default: []
         },
         createTime: {
             type: Date,
