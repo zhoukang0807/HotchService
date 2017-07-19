@@ -102,7 +102,22 @@ router.post('/add', function (req, res, next) {
                     if(err){
                         res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "服务器异常！"});
                     }else{
-                        res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "查询成功！", users: data.users});
+                        User.findOne({userName: postData.userName}, function (err, userInfo) {
+                            if (err) {
+                                res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "服务器异常！"});
+                            } else {
+                                var rooms=userInfo.rooms;
+                                rooms.push(data);
+                                User.findOneAndUpdate({userName: postData.userName},{$set:{rooms: rooms}},function (err,row) {
+                                    if(err){
+                                        res.send({resultCode: constant.resultCode.Error_Code_DB, resultDesc: "服务器异常！"});
+                                    }else{
+                                        res.send({resultCode: constant.resultCode.Success_Code, resultDesc: "群加入成功！", users: data.users});
+                                    }
+                                })
+                            }
+                        });
+
                     }
                 })
             } else {
